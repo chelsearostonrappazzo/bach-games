@@ -28,8 +28,15 @@ add_idols("Everglow")
 add_idols("Stray Kids")
 add_idols("Way V")
 add_idols("TWICE")
+add_idols("BTS")
+add_idols("Dreamcatcher")
+add_idols("2PM")
+add_idols("SHINee")
+add_idols("SuperM")
+add_idols("Blackpink")
+add_idols("Itzy")
 
-p @idols
+p @idols.keys
 
 def add_books(n)
   new_array = []
@@ -41,9 +48,15 @@ end
 
 add_books("Twilight")
 add_books("LOTR")
-add_books("Masnfield Park")
+add_books("Mansfield Park")
+add_books("Harry Potter")
+add_books("Pride & Prejudice")
+add_books("Emma")
+add_books("Northanger Abbey")
+add_books("Persuasion")
+add_books("Sense & Sensibility")
 
-p @books
+p @books.keys
 
 # class Group
 #   attr_accessor :group, :idol
