@@ -1,7 +1,7 @@
 require "csv"
 
-@groups = Hash.new(0)
-
+@idols = Hash.new(0)
+@books = Hash.new(0)
 # CSV.foreach("idols-headers.csv") do |row|
 #   groups << row.to_h
 # end
@@ -21,7 +21,7 @@ def add_idols(n)
   CSV.foreach("idols-headers.csv", headers: true) do |row|
     new_array << row[n]
   end
-  @groups[n] = new_array
+  @idols[n] = new_array.compact
 end
 
 add_idols("Everglow")
@@ -29,7 +29,21 @@ add_idols("Stray Kids")
 add_idols("Way V")
 add_idols("TWICE")
 
-p @groups
+p @idols
+
+def add_books(n)
+  new_array = []
+  CSV.foreach("book_characters.csv", headers: true) do |row|
+    new_array << row[n]
+  end
+  @books[n] = new_array.compact
+end
+
+add_books("Twilight")
+add_books("LOTR")
+add_books("Masnfield Park")
+
+p @books
 
 # class Group
 #   attr_accessor :group, :idol

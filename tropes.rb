@@ -1,10 +1,10 @@
-file_2 = "tropes.txt"
+file_two = "tropes.txt"
 #include name files for idols, book characters, tv characters
 #convert idols sheet to csv
 
 tropes = []
 
-File.readlines(file_2).each do |line|
+File.readlines(file_two).each do |line|
   tropes << line.strip
 end
 
