@@ -1,0 +1,161 @@
+#!/Users/chelsearoston/.rbenv/versions/3.0.0/bin/ruby
+
+require "colorize"
+require "colorized_string"
+require "tty-prompt"
+require "balm"
+
+class Game
+  def initialize
+    @celeb_names = []
+    File.readlines("male_celebs.txt").each do |line|
+      @celeb_names << line.strip
+    end
+    @mundane_names = []
+    File.readlines("sara.txt").each do |line|
+      @mundane_names << line.strip
+    end
+    @rankings = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+    @all_names = []
+    @tops = []
+    @bottoms = []
+  end
+
+  def get_contestants
+    @filler_names = []
+    if @mundane_names.length < 20
+      @filler_names << @celeb_names.sample(20 - @mundane_names.length)
+      @all_names = @mundane_names.concat(@filler_names).flatten
+      pairings(@all_names)
+    elsif @mundane_names.length > 20
+      @mundane_names.delete_if { |num| @mundane_names.index(num) > 19 }
+      pairings(@mundane_names)
+    end
+  end
+
+  def pairings(names)
+    puts "Your contestants are:".center(100).colorize(:cyan)
+    sleep(1)
+    puts ""
+    puts ""
+    names.shuffle.each_with_index do |name, i|
+      puts "#{i + 1}. #{name}".center(100)
+    end
+    puts "--------".center(100)
+    pairings = names.combination(2).to_a
+    @game = pairings.shuffle
+  end
+
+  def start_game
+    puts "Are you ready to begin?".center(100).colorize(:cyan)
+    response = gets.chomp
+    while true
+      if response == "yes" || response == "continue"
+        topbot
+      end
+    end
+  end
+
+  def topbot
+    @prompt = TTY::Prompt.new
+    pairing = ((@game - @tops) - @bottoms).sample(1).flatten
+    choice = @prompt.select("Who is the top?".center(100).colorize(:red)) do |menu|
+      menu.choice pairing[0].center(100).colorize(:magenta), 1
+      menu.choice pairing[1].center(100).colorize(:magenta), 2
+      menu.choice "Challenge".center(100).colorize(:green), 3
+      menu.choice "Top Ranking".colorize(:blue), 4
+      menu.choice "Bottom Ranking".colorize(:blue), 5
+      menu.choice "Drink".colorize(:red), 6
+      menu.choice "Save".colorize(:blue), 7
+    end
+    case choice
+    when 1
+      @tops << pairing[0]
+      @bottoms << pairing[1]
+    when 2
+      @tops << pairing[1]
+      @bottoms << pairing[0]
+    when 3
+      challenge
+    when 4
+      top_ranking
+    when 5
+      bottom_ranking
+    when 6
+      drink
+    when 7
+      save
+    end
+  end
+
+  def top_ranking
+    @all_names.each { |name| @rankings[:tops][name] = 0 }
+    @tops.each { |name| @rankings[:tops][name] += 1 }
+    top = @rankings[:tops].sort_by { |name, num| num }.reverse.to_h
+    top.map do |k, v|
+      if v > 0
+        puts "#{v}: #{k}"
+      end
+    end
+    puts ""
+    puts "Take a drink!".colorize(:red)
+  end
+
+  def bottom_ranking
+    @all_names.each { |name| @rankings[:bottoms][name] = 0 }
+    @bottoms.each { |name| @rankings[:bottoms][name] += 1 }
+    bottom = @rankings[:bottoms].sort_by { |name, num| num }.reverse.to_h
+    bottom.map do |k, v|
+      if v > 0
+        puts "#{v}: #{k}"
+      end
+    end
+    puts ""
+    puts "Take a drink!".colorize(:red)
+  end
+
+  def save
+    output = File.open("bach_game.txt", "w")
+    output << @rankings
+    output.close
+  end
+
+  def drink
+    drink_if = []
+    File.readlines("drinkif.txt").each do |line|
+      drink_if << line.strip
+    end
+    puts ""
+    puts drink_if.shuffle[0].upcase.colorize(:green)
+    puts ""
+  end
+
+  def challenge
+    puts ""
+    puts "So you don't like the general consensus, huh?".colorize(:red)
+    puts ""
+    puts "Prove your side by weaving a short love story to convince the other! (Though it won't matter)"
+    puts ""
+    puts "#{Balm::Plot.trope}".upcase.colorize(:red)
+    puts ""
+  end
+end
+
+game = Game.new
+puts "Welcome to Top or Bottom 2.0 at Sara's Last Syrah!".center(100)
+sleep(3)
+puts ""
+puts ""
+puts "If you have a drink, take a sip!".center(100)
+puts "If you don't, then get one!".center(100)
+puts ""
+puts ""
+sleep(3)
+puts "I already have your contestants ready!".center(100).colorize(:cyan)
+puts ""
+sleep(2)
+game.get_contestants
+puts "How does that look?".center(100)
+sleep(2)
+puts "There should be 20 contestants. If not, tell Chelsea to fix it.".center(100).colorize(:cyan)
+game.start_game
